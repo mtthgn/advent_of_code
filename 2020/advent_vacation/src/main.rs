@@ -6,6 +6,7 @@ mod day_three;
 mod day_four;
 mod day_five;
 mod day_six;
+mod day_seven;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -24,6 +25,8 @@ fn main() {
         "day_five_part_two" => day_five::run_part_two(),
         "day_six_part_one" => day_six::run_part_one(),
         "day_six_part_two" => day_six::run_part_two(),
+        "day_seven_part_one" => day_seven::run_part_one(),
+        "day_seven_part_two" => day_seven::run_part_two(),
         _ => println!("Unrecognized Day input")
     }
 }
