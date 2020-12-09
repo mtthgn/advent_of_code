@@ -33,21 +33,17 @@ pub fn run_part_one() {
 pub fn run_part_two() {
     let sum_goal : i64 = 90433990;
     let values = parse();
+
     let mut chain = VecDeque::<i64>::new();
     let mut position : usize = 0;
+    let mut sum : i64 = 0;
 
-    while chain.iter().sum::<i64>() != sum_goal {
-        if chain.iter().sum::<i64>() > sum_goal {
-            chain.pop_front();
-        }
-
-        while chain.iter().sum::<i64>() > sum_goal {
-            chain.pop_back();
-            position -= 1;
-        }
-
-        if chain.iter().sum::<i64>() != sum_goal {
+    while sum != sum_goal {
+        if sum > sum_goal {
+            sum -= chain.pop_front().unwrap();
+        } else if sum < sum_goal {
             chain.push_back(values[position]);
+            sum += values[position];
             position += 1;
         }
     }
