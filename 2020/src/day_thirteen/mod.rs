@@ -2,7 +2,7 @@ use std::fs;
 
 pub fn run_part_one() {
     let (estimate, bus_ids) = parse();
-    let mut shortest_distance : Option<(usize, usize)> = None;
+    let mut shortest_distance : Option<(u64, u64)> = None;
 
     for (_, id) in bus_ids {
         let id_distance = ((estimate / id + 1) * id) - estimate;
@@ -23,8 +23,8 @@ pub fn run_part_two() {
     let (_, first_value) = bus_ids[0];
     let (last_index, _) = bus_ids[bus_ids.len() - 1];
 
-    let mut modulo : u64 = first_value as u64;
-    let mut products : u64 = first_value as u64;
+    let mut modulo : u64 = first_value;
+    let mut products : u64 = first_value;
     let mut last_product_index = 0;
 
 
@@ -32,11 +32,11 @@ pub fn run_part_two() {
         let mut all_match = true;
 
         for (index, id) in bus_ids.iter() {
-            if (modulo + *index as u64) % (*id as u64) == 0 {
+            if (modulo + *index) % *id == 0 {
                 if index > &last_product_index {
                     if index == &last_index { break; }
                     last_product_index = *index;
-                    products *= *id as u64;
+                    products *= *id;
                 }
                 continue;
             }
@@ -52,20 +52,20 @@ pub fn run_part_two() {
     println!("{}", modulo);
 }
 
-fn parse() -> (usize, Vec<(usize, usize)>) {
+fn parse() -> (u64, Vec<(u64, u64)>) {
     let contents = fs::read_to_string("./src/day_thirteen/input.txt")
         .expect("Unable to read file");
     let mut iter = contents.lines();
 
     let estimate_string = iter.next().unwrap();
-    let estimate = estimate_string.parse::<usize>().unwrap();
+    let estimate = estimate_string.parse::<u64>().unwrap();
     let bus_id_string = iter.next().unwrap();
-    let mut bus_ids = Vec::<(usize, usize)>::new();
+    let mut bus_ids = Vec::<(u64, u64)>::new();
 
     for (index, id) in bus_id_string.split(',').enumerate() {
         match id {
             "x" => (),
-            _ => bus_ids.push((index, id.parse::<usize>().unwrap()))
+            _ => bus_ids.push((index as u64, id.parse::<u64>().unwrap()))
         }
     }
 
