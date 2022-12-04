@@ -1,0 +1,19 @@
+{
+    "env": {
+        "es2022": true
+    },
+    "extends": [
+        "standard-with-typescript",
+        "prettier"
+    ],
+    "overrides": [
+    ],
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "project": ["tsconfig.json"],
+        "sourceType": "module"
+    },
+    "plugins": [
+    ],
+    "rules": {}
+}
