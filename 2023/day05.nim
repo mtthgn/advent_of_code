@@ -3,6 +3,22 @@ import std/sequtils
 import std/algorithm
 import std/sugar
 
+type
+  SeedRange = tuple[start: int, length: int]
+  TranslationRange = tuple[source: int, destination: int, range: int]
+
+proc generateTranslation(dataString: string): seq[TranslationRange] =
+  var translation: seq[TranslationRange] = @[]
+  let data = dataString.split(":\n")[1].split("\n")
+  for row in data:
+      let
+        rowData = row.splitWhitespace()
+        destination = parseInt(rowData[0])
+        source = parseInt(rowData[1])
+        range = parseInt(rowData[2])
+      translation.add((source: source, destination: destination, range: range))
+  translation
+
 proc partOne() =
   var 
     translations: seq[seq[tuple[source: int, destination: int, range: int]]] = @[]
@@ -12,19 +28,7 @@ proc partOne() =
     seeds = groups[0].split(": ")[1].splitWhitespace()
 
   for dataString in groups[1..^1]:
-    # construct a table.
-    var translation: seq[tuple[source: int, destination: int, range: int]] = @[]
-    let
-      data = dataString.split(":\n")[1].split("\n")
-    
-    for row in data:
-      let
-        rowData = row.splitWhitespace()
-        destination = parseInt(rowData[0])
-        source = parseInt(rowData[1])
-        range = parseInt(rowData[2])
-      translation.add((source: source, destination: destination, range: range))
-    translations.add(translation)
+    translations.add(generateTranslation(dataString))
 
   var locations = seeds.map do (seed: string) -> int:
     var value = parseInt(seed)
@@ -45,10 +49,6 @@ echo "========= Part One ==========="
 partOne()
 
 # ============================
-
-type
-  SeedRange = tuple[start: int, length: int]
-  TranslationRange = tuple[source: int, destination: int, range: int]
 
 proc translate(seed: SeedRange, translation: seq[TranslationRange]): seq[SeedRange] = 
   var 
@@ -88,35 +88,17 @@ proc partTwo() =
       seedRanges.add((start: parseInt(seeds[i]), length: parseInt(seeds[i + 1])))
       i += 2
 
-  block translationParsing:
-    for dataString in groups[1..^1]:
-      # construct a table.
-      var translation: seq[TranslationRange] = @[]
-      let
-        data = dataString.split(":\n")[1].split("\n")
-      
-      for row in data:
-        let
-          rowData = row.splitWhitespace()
-          destination = parseInt(rowData[0])
-          source = parseInt(rowData[1])
-          range = parseInt(rowData[2])
-        translation.add((source: source, destination: destination, range: range))
-      translations.add(translation)
+  for dataString in groups[1..^1]:
+    translations.add(generateTranslation(dataString))
   
-  block seedRangeIterating:
-    for seed in seedRanges:
-      # Unpacked the flat_mapping because I'm a noob at nim. May circle back to this.
-      var
-        soils = seed.translate(translations[0])
-        fertilizers = foldl(soils.map(s => s.translate(translations[1])), a.concat(b), newSeq[SeedRange]())
-        waters = foldl(fertilizers.map(f => f.translate(translations[2])), a.concat(b), newSeq[SeedRange]())
-        lights = foldl(waters.map(w => w.translate(translations[3])), a.concat(b), newSeq[SeedRange]())
-        temps = foldl(lights.map(l => l.translate(translations[4])), a.concat(b), newSeq[SeedRange]())
-        humidity = foldl(temps.map(t => t.translate(translations[5])), a.concat(b), newSeq[SeedRange]())
-        locs = foldl(humidity.map(h => h.translate(translations[6])), a.concat(b), newSeq[SeedRange]())
+  for seed in seedRanges:
+    var translated = seed.translate(translations[0])
 
-      locations.add(locs)
+    for translation in translations[1..^1]:
+      # Making a copy to maintain memory safety
+      let translation = translation
+      translated = foldl(translated.map(t => t.translate(translation)), a.concat(b), newSeq[SeedRange]())
+    locations.add(translated)
 
   locations.sort()
   echo locations[0]
